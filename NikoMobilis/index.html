@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>hello phaser!</title>
+        <script src="phaser.min.js"></script>
+    </head>
+    <body>
+
+		<script type="text/javascript">
+
+		var game = new Phaser.Game(500, 700, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update, render: render });
+
+		function preload() {
+			game.load.image('button1', 'buttons.png');
+			game.load.image('playercar', 'playercar.png');
+			game.load.image('car', 'car1.png');
+			game.load.image('backgroundNM', 'backgroundNM.jpeg');
+		}
+
+		//кнопки
+		var button1; // налево
+		var button2; // направо 
+		var PlayerCar; // главная машина
+		var Car1; //одна машина
+		var Car2; // вторая машина
+		var Car3; 
+		var stateText; // текст для гейм овер
+		var gameover; // состояние игра-конец игры
+		var score; //итоговый счет
+		var backgroundNM;
+		
+		function create() {
+			game.physics.startSystem(Phaser.Physics.ARCADE);
+			
+			backgroundNM = game.add.tileSprite(0, 0, 500, 700, 'backgroundNM');
+		
+			gameover = false;
+			//Бибика наша
+			PlayerCar = game.add.sprite(300, 550, 'playercar');
+			PlayerCar.anchor.setTo(0.5, 0.5);
+			game.physics.enable(PlayerCar, Phaser.Physics.ARCADE);
+		
+			//Чужие бибики
+			Cars = game.add.group();
+			Cars.enableBody = true;
+			Cars.physicsBodyType = Phaser.Physics.ARCADE;
+			
+			
+			Car1 = game.add.sprite(100, 50, 'car');
+			Car1.anchor.setTo(0.5, 0.5);
+			game.physics.enable(Car1, Phaser.Physics.ARCADE);
+			
+			Car2 = game.add.sprite(200, 200, 'car');
+			Car2.anchor.setTo(0.5, 0.5);
+			game.physics.enable(Car2, Phaser.Physics.ARCADE);
+			
+			Car3 = game.add.sprite(400, 350, 'car');
+			Car3.anchor.setTo(0.5, 0.5);
+			game.physics.enable(Car3, Phaser.Physics.ARCADE);
+			
+			button1 = game.add.sprite(30, 630, 'button1');
+			button1.inputEnabled = true;
+			button1.input.start(0, true);
+			button1.events.onInputDown.add(selectBut1);
+			button1.events.onInputUp.add(releaseBut1);
+			button1.alpha = 0.5;
+			
+			button2 = game.add.sprite(270, 630, 'button1');
+			button2.inputEnabled = true;
+			button2.input.start(0, true);
+			button2.events.onInputDown.add(selectBut2);
+			button2.events.onInputUp.add(releaseBut2);
+			button2.alpha = 0.5;
+			
+			//Text
+			stateText = game.add.text(game.world.centerX,game.world.centerY,' ', { font: '84px Arial', fill: '#f00' });
+			stateText.anchor.setTo(0.5, 0.5);
+			stateText.visible = false;
+			stateText.text = "GAME OVER\n";
+
+			
+			score = 0;
+		}
+		
+		function update() {
+			if (gameover == false){
+				Car1.y += 3;
+				 if (Car1.y > 570){
+					Car1.y = 0;
+					Car1.x = 100 + 100*game.rnd.integerInRange(0,3);
+					score += 1;
+				 }	
+				 Car2.y += 3;
+				 if (Car2.y > 570){ 
+					Car2.y = 0;
+					Car2.x = 100 + 100*game.rnd.integerInRange(0,3);
+					score += 1;
+				 }
+				 Car3.y += 3;
+				 if (Car3.y > 570){ 
+					Car3.y = 0;
+					Car3.x = 100 + 100*game.rnd.integerInRange(0,3);
+					score += 1;
+				 }
+				 //collisions
+				 game.physics.arcade.overlap(Car1, PlayerCar, collisionHandler, null, this);
+				 game.physics.arcade.overlap(Car2, PlayerCar, collisionHandler, null, this);
+				 game.physics.arcade.overlap(Car3, PlayerCar, collisionHandler, null, this);
+			}
+			backgroundNM.tilePosition.y += 4;
+		}
+		
+		
+		function collisionHandler (CarN1, CarN2) {
+
+			//  When a bullet hits an alien we kill them both
+			CarN1.kill();
+			CarN2.kill();
+			
+			stateText.text += "     Result " + score;
+			stateText.visible = true;
+			gameover = true;
+		}
+
+		function render() {
+
+		}
+		
+		function selectBut1(item, pointer) {
+			item.alpha = 1;
+			if (PlayerCar.x == 100) PlayerCar.x = 100;
+			else PlayerCar.x -= 100;
+		}
+
+		function releaseBut1(item, pointer) {
+			item.alpha = .5;
+			
+		}
+		
+		function selectBut2(item, pointer) {
+			item.alpha = 1;
+			if (PlayerCar.x == 400) PlayerCar.x = 400;
+			else PlayerCar.x += 100;
+		}
+
+		function releaseBut2(item, pointer) {
+			item.alpha = .5;
+			
+		}
+		
+		</script>
+
+    </body>
+</html>
